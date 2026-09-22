@@ -2,18 +2,18 @@
   "source": "U.S. EIA On-Highway Diesel Prices",
   "url": "https://www.eia.gov/petroleum/gasdiesel/",
   "latest": {
-    "date": "2026-09-14",
-    "National": 6.285,
-    "East Coast": 6.158,
-    "New England": 6.202,
-    "Central Atlantic": 6.312,
-    "Lower Atlantic": 6.096,
-    "Midwest": 6.25,
-    "Gulf Coast": 6.027,
-    "Rocky Mountain": 6.066,
-    "West Coast": 7.25,
-    "California": 8.039,
-    "West Coast Ex-CA": 6.566
+    "date": "2026-09-21",
+    "National": 6.529,
+    "East Coast": 6.268,
+    "New England": 6.517,
+    "Central Atlantic": 6.546,
+    "Lower Atlantic": 6.139,
+    "Midwest": 6.68,
+    "Gulf Coast": 6.177,
+    "Rocky Mountain": 6.34,
+    "West Coast": 7.456,
+    "California": 8.246,
+    "West Coast Ex-CA": 6.791
   },
   "history_52w": [
     {
@@ -1261,6 +1261,20 @@
       "West Coast": 7.25,
       "California": 8.039,
       "West Coast Ex-CA": 6.566
+    },
+    {
+      "date": "2026-09-21",
+      "National": 6.529,
+      "East Coast": 6.268,
+      "New England": 6.517,
+      "Central Atlantic": 6.546,
+      "Lower Atlantic": 6.139,
+      "Midwest": 6.68,
+      "Gulf Coast": 6.177,
+      "Rocky Mountain": 6.34,
+      "West Coast": 7.456,
+      "California": 8.246,
+      "West Coast Ex-CA": 6.791
     }
   ]
 }

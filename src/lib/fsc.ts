@@ -52,14 +52,34 @@ const FSC_RAW: [number, number, number][] = [
   [6.600, 6.659, 0.91], [6.660, 6.719, 0.92],
 ];
 
+/** First band above the published FSC table, in mils ($0.001) to avoid float drift. */
+const FSC_OPEN_MIN_MILS = 6720;
+/** Surcharge in whole cents at that first band, stepped as integers for the same reason. */
+const FSC_OPEN_CENTS = 93;
+/** Above the table, each additional $0.06 of fuel cost adds $0.01/mile (truckload). */
+const FSC_STEP_MILS = 60;
+const FSC_STEP_CENTS = 1;
+
 export const FSC_TABLE: FscEntry[] = [
   { minPrice: 0,    maxPrice: 1.199, linehaulSurcharge: 0 },
   ...FSC_RAW.map(([min, max, s]) => ({ minPrice: min, maxPrice: max, linehaulSurcharge: s })),
-  { minPrice: 6.72, maxPrice: null,  linehaulSurcharge: 0.93 },
+  { minPrice: FSC_OPEN_MIN_MILS / 1000, maxPrice: null, linehaulSurcharge: FSC_OPEN_CENTS / 100 },
 ];
 
 export function getFscRate(pricePerGallon: number): FscEntry {
   const price = Math.round(pricePerGallon * 1000) / 1000;
+  const mils = Math.round(price * 1000);
+
+  if (mils >= FSC_OPEN_MIN_MILS) {
+    const steps = Math.floor((mils - FSC_OPEN_MIN_MILS) / FSC_STEP_MILS);
+    const bandMin = FSC_OPEN_MIN_MILS + steps * FSC_STEP_MILS;
+    return {
+      minPrice: bandMin / 1000,
+      maxPrice: (bandMin + FSC_STEP_MILS - 1) / 1000,
+      linehaulSurcharge: (FSC_OPEN_CENTS + steps * FSC_STEP_CENTS) / 100,
+    };
+  }
+
   return (
     FSC_TABLE.find((e) => price >= e.minPrice && (e.maxPrice === null || price <= e.maxPrice)) ??
     FSC_TABLE[FSC_TABLE.length - 1]
@@ -121,11 +141,15 @@ const IML_RAW: [number, number, number][] = [
   [6.101, 6.140, 63.5], [6.141, 6.180, 64.0], [6.181, 6.220, 64.5],
   [6.221, 6.260, 65.0], [6.261, 6.300, 65.5], [6.301, 6.340, 66.0],
   [6.341, 6.380, 66.5], [6.381, 6.420, 67.0], [6.421, 6.460, 67.5],
+  [6.461, 6.500, 68.0], [6.501, 6.540, 68.5], [6.541, 6.580, 69.0],
+  [6.581, 6.620, 69.5], [6.621, 6.660, 70.0], [6.661, 6.700, 70.5],
+  [6.701, 6.740, 71.0], [6.741, 6.780, 71.5], [6.781, 6.820, 72.0],
+  [6.821, 6.860, 72.5], [6.861, 6.900, 73.0],
 ];
 
 /** First band above the published IML table, in mils ($0.001) to avoid float drift. */
-const IML_OPEN_MIN_MILS = 6461;
-const IML_OPEN_PCT = 68.0;
+const IML_OPEN_MIN_MILS = 6901;
+const IML_OPEN_PCT = 73.5;
 /** Above the table, each additional $0.04 of fuel cost adds 0.5%. */
 const IML_STEP_MILS = 40;
 const IML_STEP_PCT = 0.5;
