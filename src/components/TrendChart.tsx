@@ -66,8 +66,9 @@ export default function TrendChart({ history52w }: TrendChartProps) {
     dataKey: "date",
     tickFormatter,
     interval: 0,
-    tick: { fontSize: 10, fill: "#94a3b8" },
+    tick: { fontSize: 10, fill: "#94a3b8", angle: -45, textAnchor: "end" as const, dy: 4 },
     tickLine: false,
+    height: 48,
   };
 
   return (
@@ -118,9 +119,9 @@ export default function TrendChart({ history52w }: TrendChartProps) {
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm mb-6 last:mb-0">
-      <p className="text-sm font-semibold text-slate-600 mb-3">{title}</p>
-      <ResponsiveContainer width="100%" height={220}>
+    <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm mb-4 sm:mb-6 last:mb-0">
+      <p className="text-sm font-semibold text-slate-600 mb-2 sm:mb-3">{title}</p>
+      <ResponsiveContainer width="100%" height={180} className="sm:!h-[220px]">
         {children as React.ReactElement}
       </ResponsiveContainer>
     </div>

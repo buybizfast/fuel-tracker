@@ -111,12 +111,12 @@ def main():
     # 4. Deploy
     print("\n4. Deploying to Vercel...")
     result = subprocess.run(
-        ["npx", "vercel", "--prod"],
+        ["npx", "vercel", "--prod", "--scope", "jrmnpotts-1905s-projects", "--yes"],
         cwd=SCRIPT_DIR,
         capture_output=False
     )
     if result.returncode == 0:
-        print(f"\n✅ Done! Site updated at https://fuel-tracker-weld.vercel.app")
+        print(f"\n✅ Done! Site updated at https://www.fsctracker.com")
     else:
         print("\n❌ Deploy failed — check Vercel output above.")
         sys.exit(1)

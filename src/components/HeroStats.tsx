@@ -37,16 +37,16 @@ export default function HeroStats({
   });
 
   return (
-    <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-4 py-14">
+    <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-4 py-8 sm:py-14">
       <div className="max-w-5xl mx-auto">
-        <p className="text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">
+        <p className="text-slate-400 text-xs sm:text-sm font-medium uppercase tracking-widest mb-1">
           Week of {formattedDate}
         </p>
-        <h2 className="text-3xl sm:text-4xl font-bold mb-8">
+        <h2 className="text-2xl sm:text-4xl font-bold mb-5 sm:mb-8">
           National Fuel Snapshot
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {/* Diesel Price */}
           <StatCard
             label="Nat'l Diesel (DOE)"
@@ -121,17 +121,17 @@ function StatCard({
   };
 
   return (
-    <div className={`bg-slate-800/60 border-l-4 ${accentMap[accent]} rounded-xl p-5 backdrop-blur`}>
-      <p className="text-xs text-slate-400 uppercase tracking-wide font-medium mb-2">
+    <div className={`bg-slate-800/60 border-l-4 ${accentMap[accent]} rounded-xl p-3 sm:p-5 backdrop-blur`}>
+      <p className="text-xs text-slate-400 uppercase tracking-wide font-medium mb-1 sm:mb-2 leading-tight">
         {label}
       </p>
-      <div className="flex items-end gap-2">
-        <span className="text-3xl font-bold tracking-tight">{value}</span>
+      <div className="flex items-end gap-1 sm:gap-2">
+        <span className="text-2xl sm:text-3xl font-bold tracking-tight">{value}</span>
         {badge && (
-          <span className="text-sm font-semibold text-slate-400 mb-1">{badge}</span>
+          <span className="text-sm font-semibold text-slate-400 mb-0.5">{badge}</span>
         )}
       </div>
-      <p className="text-xs text-slate-500 mt-1">{sub}</p>
+      <p className="text-xs text-slate-500 mt-1 leading-tight">{sub}</p>
     </div>
   );
 }

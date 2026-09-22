@@ -11,23 +11,24 @@ export default function FscLookup() {
   const iml = isValid ? getImlRate(price) : null;
 
   return (
-    <section className="bg-slate-50 border-y border-slate-200 py-12 px-4">
+    <section className="bg-slate-50 border-y border-slate-200 py-8 sm:py-12 px-4">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold text-slate-800 mb-1">
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-1">
           FSC / IML Lookup Tool
         </h2>
-        <p className="text-sm text-slate-500 mb-6">
+        <p className="text-sm text-slate-500 mb-4 sm:mb-6">
           Enter any diesel price to instantly see the EIA-based linehaul
           surcharge reference rate.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 max-w-md mb-6">
+        <div className="flex items-center gap-2 max-w-xs mb-6">
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">
               $
             </span>
             <input
               type="number"
+              inputMode="decimal"
               step="0.001"
               min="0"
               placeholder="e.g. 5.403"
@@ -36,7 +37,7 @@ export default function FscLookup() {
               className="w-full pl-7 pr-4 py-3 border border-slate-300 rounded-lg text-slate-800 font-mono text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
             />
           </div>
-          <span className="self-center text-slate-500 text-sm">per gallon</span>
+          <span className="text-slate-500 text-sm whitespace-nowrap">/gal</span>
         </div>
 
         {(fsc || iml) && (

@@ -46,13 +46,16 @@ const FSC_RAW: [number, number, number][] = [
   [5.520, 5.579, 0.73], [5.580, 5.639, 0.74], [5.640, 5.699, 0.75],
   [5.700, 5.759, 0.76], [5.760, 5.819, 0.77], [5.820, 5.879, 0.78],
   [5.880, 5.939, 0.79], [5.940, 5.999, 0.80], [6.000, 6.059, 0.81],
-  [6.060, 6.119, 0.82],
+  [6.060, 6.119, 0.82], [6.120, 6.179, 0.83], [6.180, 6.239, 0.84],
+  [6.240, 6.299, 0.85], [6.300, 6.359, 0.86], [6.360, 6.419, 0.87],
+  [6.420, 6.479, 0.88], [6.480, 6.539, 0.89], [6.540, 6.599, 0.90],
+  [6.600, 6.659, 0.91], [6.660, 6.719, 0.92],
 ];
 
 export const FSC_TABLE: FscEntry[] = [
   { minPrice: 0,    maxPrice: 1.199, linehaulSurcharge: 0 },
   ...FSC_RAW.map(([min, max, s]) => ({ minPrice: min, maxPrice: max, linehaulSurcharge: s })),
-  { minPrice: 6.12, maxPrice: null,  linehaulSurcharge: 0.83 },
+  { minPrice: 6.72, maxPrice: null,  linehaulSurcharge: 0.93 },
 ];
 
 export function getFscRate(pricePerGallon: number): FscEntry {
@@ -120,14 +123,33 @@ const IML_RAW: [number, number, number][] = [
   [6.341, 6.380, 66.5], [6.381, 6.420, 67.0], [6.421, 6.460, 67.5],
 ];
 
+/** First band above the published IML table, in mils ($0.001) to avoid float drift. */
+const IML_OPEN_MIN_MILS = 6461;
+const IML_OPEN_PCT = 68.0;
+/** Above the table, each additional $0.04 of fuel cost adds 0.5%. */
+const IML_STEP_MILS = 40;
+const IML_STEP_PCT = 0.5;
+
 export const IML_TABLE: ImlEntry[] = [
   { minPrice: 0,    maxPrice: 1.540, imlPct: 0 },
   ...IML_RAW.map(([min, max, pct]) => ({ minPrice: min, maxPrice: max, imlPct: pct })),
-  { minPrice: 6.461, maxPrice: null, imlPct: 68.0 },
+  { minPrice: IML_OPEN_MIN_MILS / 1000, maxPrice: null, imlPct: IML_OPEN_PCT },
 ];
 
 export function getImlRate(pricePerGallon: number): ImlEntry {
   const price = Math.round(pricePerGallon * 1000) / 1000;
+  const mils = Math.round(price * 1000);
+
+  if (mils >= IML_OPEN_MIN_MILS) {
+    const steps = Math.floor((mils - IML_OPEN_MIN_MILS) / IML_STEP_MILS);
+    const bandMin = IML_OPEN_MIN_MILS + steps * IML_STEP_MILS;
+    return {
+      minPrice: bandMin / 1000,
+      maxPrice: (bandMin + IML_STEP_MILS - 1) / 1000,
+      imlPct: IML_OPEN_PCT + steps * IML_STEP_PCT,
+    };
+  }
+
   return (
     IML_TABLE.find((e) => price >= e.minPrice && (e.maxPrice === null || price <= e.maxPrice)) ??
     IML_TABLE[IML_TABLE.length - 1]

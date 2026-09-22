@@ -63,6 +63,7 @@ export default function Home() {
         dieselLatest={dieselLatest}
         dieselPrior={dieselPrior}
         gasLatest={gasLatest}
+        dieselHistory={dieselData.history_52w as Array<Record<string, number | null | string>>}
       />
 
       {/* Footer */}
