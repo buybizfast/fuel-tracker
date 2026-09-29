@@ -18,10 +18,8 @@ export const SCHEDULE_SOURCE = {
   priceIndexUrl: "https://www.eia.gov/petroleum/gasdiesel/",
   /** Who publishes the surcharge schedule itself (NOT EIA). */
   scheduleName: "Carrier \u201CSelf Service\u201D linehaul surcharge tariff",
-  /** Set to the issuing carrier once confirmed; null renders an explicit caveat. */
+  /** Known to the operator; deliberately not published. */
   scheduleIssuer: null as string | null,
-  /** Date the operator supplied the schedule. Not necessarily its effective date. */
-  transcribedOn: "2026-09-22",
 } as const;
 
 // ── FSC (Linehaul) ────────────────────────────────────────────────────────────

@@ -40,12 +40,10 @@ export default function Methodology({
               {SCHEDULE_SOURCE.scheduleIssuer ? ` issued by ${SCHEDULE_SOURCE.scheduleIssuer}` : ""}.
               <strong className="text-slate-900"> The EIA does not publish, endorse, or standardise
               any fuel surcharge schedule.</strong>{" "}
-              {SCHEDULE_SOURCE.scheduleIssuer === null && (
-                <span className="text-amber-800">
-                  The issuing carrier for this schedule has not been confirmed, so it should not be
-                  assumed to match your carrier or to represent an industry norm.
-                </span>
-              )}
+              The EIA releases the price; each carrier and shipper then calculates its own
+              surcharge from its own contracted terms. Schedules therefore differ between
+              companies. The issuer of this one is not named here — treat it as a single
+              company&rsquo;s schedule and check it against your own contract.
             </Row>
 
             <Row label="Truckload FSC">
@@ -99,7 +97,7 @@ export default function Methodology({
 
             <Row label="Assumptions & limits">
               <ul className="list-disc ml-4 space-y-0.5">
-                <li>The tables were transcribed from an operator-supplied sheet on {SCHEDULE_SOURCE.transcribedOn}. Its effective date is not stated on the sheet.</li>
+                <li>Surcharge schedules are set per contract, so yours will differ unless it happens to use the same tariff.</li>
                 <li>Values above the last published band are projected from the stated step rule. If a carrier caps or re-slopes the surcharge, projections will overstate it.</li>
                 <li>Regional FSC figures apply the national schedule to a regional price. Carriers commonly index to the national average instead.</li>
                 <li>No fuel economy, empty miles, accessorials, or contract minimums are modelled unless you enter them in the custom calculator.</li>
