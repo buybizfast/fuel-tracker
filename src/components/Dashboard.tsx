@@ -83,13 +83,13 @@ export default function Dashboard({
         hidden={tab !== "diesel"}
       >
         <FscLookup />
-        <Calculators dieselPrice={dieselLatest["National"] as number | null} />
         <TrendChart history={dieselHistory as Array<{ date: string; National?: number | null }>} />
         <RegionalBreakdown
           dieselLatest={dieselLatest}
           dieselPrior={dieselPrior}
           dieselHistory={dieselHistory}
         />
+        <Calculators dieselPrice={dieselLatest["National"] as number | null} />
       </div>
 
       <div
