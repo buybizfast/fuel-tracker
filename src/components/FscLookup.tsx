@@ -13,20 +13,25 @@ export default function FscLookup() {
   return (
     <section className="bg-slate-50 border-y border-slate-200 py-8 sm:py-12 px-4">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-1">
-          FSC / IML Lookup Tool
+        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">
+          Rate lookup
         </h2>
-        <p className="text-sm text-slate-500 mb-4 sm:mb-6">
-          Enter any diesel price to instantly see the EIA-based linehaul
-          surcharge reference rate.
+        <p className="text-sm text-slate-700 mb-4 sm:mb-6">
+          Enter any diesel price to see the estimated surcharge from the carrier
+          schedule. The EIA supplies the price index only — it does not publish
+          surcharge rates.
         </p>
 
+        <label htmlFor="lookup-diesel" className="block text-sm font-semibold text-slate-800 mb-1">
+          Diesel price per gallon
+        </label>
         <div className="flex items-center gap-2 max-w-xs mb-6">
           <div className="relative flex-1">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 font-bold" aria-hidden="true">
               $
             </span>
             <input
+              id="lookup-diesel"
               type="number"
               inputMode="decimal"
               step="0.001"
@@ -34,10 +39,10 @@ export default function FscLookup() {
               placeholder="e.g. 5.403"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              className="w-full pl-7 pr-4 py-3 border border-slate-300 rounded-lg text-slate-800 font-mono text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full pl-7 pr-4 py-3 border border-slate-400 rounded-lg text-slate-900 font-mono text-lg focus:outline-none focus:ring-2 focus:ring-blue-600 bg-white"
             />
           </div>
-          <span className="text-slate-500 text-sm whitespace-nowrap">/gal</span>
+          <span className="text-slate-700 text-sm whitespace-nowrap">/gal</span>
         </div>
 
         {(fsc || iml) && (
@@ -61,27 +66,24 @@ export default function FscLookup() {
           </div>
         )}
 
-        <p className="text-xs text-slate-400 mb-8 max-w-2xl">
-          ⚠️{" "}
-          <strong>Disclaimer:</strong> Rates are a generalized EIA-based
-          industry reference (Self Service linehaul surcharge table). Actual
-          surcharges vary by carrier, contract, and negotiated terms. Always
-          confirm directly with your carrier or broker.
+        <p className="text-xs text-slate-700 mb-8 max-w-2xl">
+          Estimates from a carrier &ldquo;Self Service&rdquo; tariff schedule, indexed to the EIA
+          diesel price. Not an EIA product and not an industry standard.
         </p>
 
         {/* Full reference table */}
         <details className="group">
-          <summary className="cursor-pointer text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3 list-none flex items-center gap-1">
-            <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
-            View full EIA linehaul surcharge reference table
+          <summary className="cursor-pointer text-sm font-semibold text-blue-700 hover:text-blue-900 mb-3 list-none flex items-center gap-1 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+            <span className="group-open:rotate-90 transition-transform inline-block" aria-hidden="true">▶</span>
+            View the full truckload surcharge schedule ($/mile)
           </summary>
 
           <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mt-3 max-h-96 overflow-y-auto">
             <table className="w-full text-sm">
               <thead className="bg-slate-800 text-white sticky top-0">
                 <tr>
-                  <th className="text-left px-4 py-2 font-semibold">EIA Fuel Index Range</th>
-                  <th className="text-right px-4 py-2 font-semibold">Linehaul Surcharge</th>
+                  <th className="text-left px-4 py-2 font-semibold">Diesel price range (EIA)</th>
+                  <th scope="col" className="text-right px-4 py-2 font-semibold">Surcharge $/mile (est.)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -99,7 +101,7 @@ export default function FscLookup() {
                           : "hover:bg-slate-50"
                       } transition-colors`}
                     >
-                      <td className="px-4 py-2 font-mono text-slate-700">
+                      <td className="px-4 py-2 font-mono text-slate-800">
                         ${row.minPrice.toFixed(3)}
                         {row.maxPrice != null
                           ? ` – $${(row.maxPrice - 0.001).toFixed(3)}`
@@ -123,17 +125,17 @@ export default function FscLookup() {
 
         {/* IML reference table */}
         <details className="group mt-4">
-          <summary className="cursor-pointer text-sm font-semibold text-blue-600 hover:text-blue-700 mb-3 list-none flex items-center gap-1">
-            <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
-            View full IML (Intermodal) reference table
+          <summary className="cursor-pointer text-sm font-semibold text-blue-700 hover:text-blue-900 mb-3 list-none flex items-center gap-1 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+            <span className="group-open:rotate-90 transition-transform inline-block" aria-hidden="true">▶</span>
+            View the full intermodal surcharge schedule (% of linehaul)
           </summary>
 
           <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mt-3 max-h-96 overflow-y-auto">
             <table className="w-full text-sm">
               <thead className="bg-slate-800 text-white sticky top-0">
                 <tr>
-                  <th className="text-left px-4 py-2 font-semibold">EIA Fuel Index Range</th>
-                  <th className="text-right px-4 py-2 font-semibold">IML Surcharge</th>
+                  <th className="text-left px-4 py-2 font-semibold">Diesel price range (EIA)</th>
+                  <th scope="col" className="text-right px-4 py-2 font-semibold">% of linehaul (est.)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -151,7 +153,7 @@ export default function FscLookup() {
                           : "hover:bg-slate-50"
                       } transition-colors`}
                     >
-                      <td className="px-4 py-2 font-mono text-slate-700">
+                      <td className="px-4 py-2 font-mono text-slate-800">
                         ${row.minPrice.toFixed(3)}
                         {row.maxPrice != null ? ` – $${row.maxPrice.toFixed(3)}` : "+"}
                         {isHighlighted && (
@@ -191,9 +193,9 @@ function ResultCard({
 
   return (
     <div className={`bg-white border-2 ${border} rounded-xl p-5 text-center shadow-sm`}>
-      <p className="text-xs text-slate-500 uppercase tracking-wide font-medium mb-2">{label}</p>
+      <p className="text-xs text-slate-700 uppercase tracking-wide font-medium mb-2">{label}</p>
       <p className={`text-4xl font-bold ${text}`}>{value}</p>
-      <p className="text-xs text-slate-400 mt-1">{sub}</p>
+      <p className="text-xs text-slate-700 mt-1">{sub}</p>
     </div>
   );
 }

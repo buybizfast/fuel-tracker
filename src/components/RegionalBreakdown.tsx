@@ -7,7 +7,6 @@ import { getFscRate, getImlRate, formatPrice, formatGasPrice, formatSurcharge, f
 interface RegionalBreakdownProps {
   dieselLatest: Record<string, number | null | string>;
   dieselPrior: Record<string, number | null | string>;
-  gasLatest: Record<string, number | null | string>;
   dieselHistory: Array<Record<string, number | null | string>>;
 }
 
@@ -24,35 +23,9 @@ const PADD_REGIONS = [
   { key: "California",       label: "California",           padd: "PADD 5" },
 ];
 
-const STATES = [
-  { key: "California",    label: "California" },
-  { key: "Colorado",      label: "Colorado" },
-  { key: "Florida",       label: "Florida" },
-  { key: "Massachusetts", label: "Massachusetts" },
-  { key: "Minnesota",     label: "Minnesota" },
-  { key: "New York",      label: "New York" },
-  { key: "Ohio",          label: "Ohio" },
-  { key: "Texas",         label: "Texas" },
-  { key: "Washington",    label: "Washington" },
-];
-
-const CITIES = [
-  { key: "Boston",        label: "Boston, MA" },
-  { key: "Chicago",       label: "Chicago, IL" },
-  { key: "Cleveland",     label: "Cleveland, OH" },
-  { key: "Denver",        label: "Denver, CO" },
-  { key: "Houston",       label: "Houston, TX" },
-  { key: "Los Angeles",   label: "Los Angeles, CA" },
-  { key: "Miami",         label: "Miami, FL" },
-  { key: "New York City", label: "New York City, NY" },
-  { key: "San Francisco", label: "San Francisco, CA" },
-  { key: "Seattle",       label: "Seattle, WA" },
-];
-
 export default function RegionalBreakdown({
   dieselLatest,
   dieselPrior,
-  gasLatest,
   dieselHistory,
 }: RegionalBreakdownProps) {
   const [activeRegion, setActiveRegion] = useState<string | null>(null);
@@ -66,12 +39,10 @@ export default function RegionalBreakdown({
       .filter((row) => row[regionKey] != null)
       .map((row) => {
         const price = row[regionKey] as number;
-        return {
-          date: String(row.date),
-          price,
-          fsc: getFscRate(price).linehaulSurcharge,
-        };
-      });
+        const fsc = getFscRate(price);
+        return fsc ? { date: String(row.date), price, fsc: fsc.linehaulSurcharge } : null;
+      })
+      .filter((d): d is { date: string; price: number; fsc: number } => d !== null);
 
     // Label the first week of each quarter only — monthly labels collide on phones.
     // Every date stays in the data (and so in the axis domain); the rest just render blank.
@@ -105,8 +76,9 @@ export default function RegionalBreakdown({
 
       {/* ── PADD Diesel + FSC table ─────────────────────────────── */}
       <h2 className="text-xl sm:text-2xl font-bold text-slate-800 mb-1">Regional Breakdown</h2>
-      <p className="text-sm text-slate-500 mb-4 sm:mb-6">
-        Tap a region to see its diesel &amp; FSC trend
+      <p className="text-sm text-slate-700 mb-4 sm:mb-6">
+        EIA diesel prices by PADD region, with estimated surcharges from the carrier
+        schedule. Tap a region for its trend.
       </p>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm mb-8 sm:mb-12">
@@ -157,7 +129,7 @@ export default function RegionalBreakdown({
                         {r.label}
                       </span>
                     </td>
-                    <td className="hidden sm:table-cell px-4 py-3 text-center text-slate-500 text-xs">{r.padd}</td>
+                    <td className="hidden sm:table-cell px-4 py-3 text-center text-slate-700 text-xs">{r.padd}</td>
                     <td className="px-3 sm:px-4 py-3 text-right font-mono text-black text-xs sm:text-sm">{formatPrice(price)}</td>
                     <td className={`px-3 sm:px-4 py-3 text-right font-mono text-xs ${
                       chg == null ? "text-slate-400" : chg > 0 ? "text-red-500" : chg < 0 ? "text-green-600" : "text-slate-400"
@@ -174,7 +146,7 @@ export default function RegionalBreakdown({
                   {chart && (
                     <tr>
                       <td colSpan={6} className="px-2 sm:px-4 py-3 sm:py-4 bg-blue-50 border-l-2 border-blue-500">
-                        <p className="text-xs font-semibold text-slate-600 mb-2 sm:mb-3 px-1">
+                        <p className="text-xs font-semibold text-slate-800 mb-2 sm:mb-3 px-1">
                           {r.label}
                           {" — Diesel & FSC since Jan 2025"}
                         </p>
@@ -221,7 +193,7 @@ export default function RegionalBreakdown({
                             <Line yAxisId="fsc" type="monotone" dataKey="fsc" name="FSC" stroke="#f59e0b" strokeWidth={2} dot={false} />
                           </ComposedChart>
                         </ResponsiveContainer>
-                        <p className="text-xs text-slate-400 mt-1 px-1">
+                        <p className="text-xs text-slate-700 mt-1 px-1">
                           <span className="text-blue-600 font-medium">Diesel $/gal</span> (left) ·{" "}
                           <span className="text-amber-600 font-medium">FSC $/mi</span> (right)
                         </p>
@@ -235,49 +207,6 @@ export default function RegionalBreakdown({
         </table>
       </div>
 
-      {/* ── State Gasoline Prices ────────────────────────────────── */}
-      <h3 className="text-lg font-bold text-slate-800 mb-1">State Gasoline Prices</h3>
-      <p className="text-sm text-slate-500 mb-4">
-        All grades, all formulations (EIA weekly retail)
-      </p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-12">
-        {STATES.map((s) => {
-          const price = gasLatest[s.key] as number | null;
-          return (
-            <div key={s.key} className="bg-white border border-slate-200 rounded-lg p-3 text-center shadow-sm hover:shadow-md transition-shadow">
-              <p className="text-xs text-slate-500 font-medium mb-1">{s.label}</p>
-              <p className="text-xl font-bold text-slate-800">{formatGasPrice(price)}</p>
-              <p className="text-xs text-slate-400">per gallon</p>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ── Metro City Gasoline Prices ───────────────────────────── */}
-      <h3 className="text-lg font-bold text-slate-800 mb-1">Metro Area Gasoline Prices</h3>
-      <p className="text-sm text-slate-500 mb-4">
-        All grades, all formulations — vs. national average
-      </p>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {CITIES.map((c) => {
-          const price = gasLatest[c.key] as number | null;
-          const national = gasLatest["National"] as number | null;
-          const rawDiff = price != null && national != null ? price - national : null;
-          const diff = rawDiff != null ? Math.round(rawDiff * 1000) / 1000 : null;
-
-          return (
-            <div key={c.key} className="bg-white border border-slate-200 rounded-lg p-3 text-center shadow-sm hover:shadow-md transition-shadow">
-              <p className="text-xs text-slate-500 font-medium mb-1">{c.label}</p>
-              <p className="text-xl font-bold text-slate-800">{formatGasPrice(price)}</p>
-              {diff != null && (
-                <p className={`text-xs font-medium ${diff > 0 ? "text-red-500" : diff < 0 ? "text-green-600" : "text-slate-400"}`}>
-                  {diff >= 0 ? "+" : "-"}${Math.abs(diff).toFixed(2)} vs nat&apos;l
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
     </section>
   );
 }

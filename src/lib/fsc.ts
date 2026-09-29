@@ -1,12 +1,28 @@
 /**
- * Fuel Surcharge (FSC) & Intermodal (IML) Calculator
+ * Fuel Surcharge (FSC) & Intermodal (IML) lookup tables.
  *
- * Based on the DOE/EIA weekly U.S. national average on-highway diesel price.
+ * IMPORTANT — provenance:
+ * The EIA publishes the diesel PRICE that indexes these tables. It does not
+ * publish, endorse, or standardise any fuel surcharge schedule. The schedules
+ * below were transcribed from a carrier "Self Service" tariff sheet supplied by
+ * the site operator. They are NOT an industry standard and NOT an EIA product.
  *
- * DISCLAIMER: These tables represent a generalized industry reference.
- * Actual fuel surcharges vary by carrier, contract, and negotiated terms.
- * Always confirm rates directly with your carrier or broker.
+ * Treat every output as an estimate. Actual surcharges vary by carrier,
+ * contract, lane, mode, and negotiated terms.
  */
+
+/** Where the surcharge schedules came from, surfaced in the UI. */
+export const SCHEDULE_SOURCE = {
+  /** What indexes the table (this part IS from EIA). */
+  priceIndex: "EIA Weekly Retail On-Highway Diesel Price, U.S. average",
+  priceIndexUrl: "https://www.eia.gov/petroleum/gasdiesel/",
+  /** Who publishes the surcharge schedule itself (NOT EIA). */
+  scheduleName: "Carrier \u201CSelf Service\u201D linehaul surcharge tariff",
+  /** Set to the issuing carrier once confirmed; null renders an explicit caveat. */
+  scheduleIssuer: null as string | null,
+  /** Date the operator supplied the schedule. Not necessarily its effective date. */
+  transcribedOn: "2026-09-22",
+} as const;
 
 // ── FSC (Linehaul) ────────────────────────────────────────────────────────────
 
@@ -66,7 +82,8 @@ export const FSC_TABLE: FscEntry[] = [
   { minPrice: FSC_OPEN_MIN_MILS / 1000, maxPrice: null, linehaulSurcharge: FSC_OPEN_CENTS / 100 },
 ];
 
-export function getFscRate(pricePerGallon: number): FscEntry {
+export function getFscRate(pricePerGallon: number): FscEntry | null {
+  if (!Number.isFinite(pricePerGallon) || pricePerGallon < 0) return null;
   const price = Math.round(pricePerGallon * 1000) / 1000;
   const mils = Math.round(price * 1000);
 
@@ -160,7 +177,8 @@ export const IML_TABLE: ImlEntry[] = [
   { minPrice: IML_OPEN_MIN_MILS / 1000, maxPrice: null, imlPct: IML_OPEN_PCT },
 ];
 
-export function getImlRate(pricePerGallon: number): ImlEntry {
+export function getImlRate(pricePerGallon: number): ImlEntry | null {
+  if (!Number.isFinite(pricePerGallon) || pricePerGallon < 0) return null;
   const price = Math.round(pricePerGallon * 1000) / 1000;
   const mils = Math.round(price * 1000);
 
@@ -178,6 +196,62 @@ export function getImlRate(pricePerGallon: number): ImlEntry {
     IML_TABLE.find((e) => price >= e.minPrice && (e.maxPrice === null || price <= e.maxPrice)) ??
     IML_TABLE[IML_TABLE.length - 1]
   );
+}
+
+// ── Shipment & custom-formula estimates ───────────────────────────────────────
+
+/** Round to cents, away from zero, avoiding binary-float edge cases. */
+function toCents(dollars: number): number {
+  return Math.round((dollars + Number.EPSILON) * 100) / 100;
+}
+
+/**
+ * Total truckload fuel surcharge for a shipment.
+ * total = rate per mile x miles. Returns null on invalid input.
+ */
+export function estimateShipmentFsc(
+  miles: number,
+  ratePerMile: number
+): { total: number; miles: number; ratePerMile: number } | null {
+  if (!Number.isFinite(miles) || miles <= 0) return null;
+  if (!Number.isFinite(ratePerMile) || ratePerMile < 0) return null;
+  return { total: toCents(miles * ratePerMile), miles, ratePerMile };
+}
+
+/**
+ * Intermodal surcharge in dollars. The IML figure is a PERCENTAGE OF THE
+ * LINEHAUL CHARGE, not of the total invoice and not a per-mile rate.
+ */
+export function estimateIntermodalSurcharge(
+  linehaulDollars: number,
+  imlPct: number
+): { surcharge: number; total: number; linehaul: number; pct: number } | null {
+  if (!Number.isFinite(linehaulDollars) || linehaulDollars <= 0) return null;
+  if (!Number.isFinite(imlPct) || imlPct < 0) return null;
+  const surcharge = toCents(linehaulDollars * (imlPct / 100));
+  return { surcharge, total: toCents(linehaulDollars + surcharge), linehaul: linehaulDollars, pct: imlPct };
+}
+
+/**
+ * Contract-style FSC, the common alternative to a lookup table:
+ *
+ *   $/mile = (current diesel price - contract base price) / truck MPG
+ *
+ * Yields 0 when diesel is at or below the base price (no surcharge owed).
+ * Independent of the carrier tariff tables above.
+ */
+export function customFscPerMile(
+  dieselPrice: number,
+  basePrice: number,
+  mpg: number
+): { perMile: number; spread: number } | null {
+  if (!Number.isFinite(dieselPrice) || dieselPrice < 0) return null;
+  if (!Number.isFinite(basePrice) || basePrice < 0) return null;
+  if (!Number.isFinite(mpg) || mpg <= 0) return null;
+  const spread = dieselPrice - basePrice;
+  if (spread <= 0) return { perMile: 0, spread: 0 };
+  // Keep 4dp: carriers commonly quote per-mile surcharges to a tenth of a cent.
+  return { perMile: Math.round((spread / mpg) * 10000) / 10000, spread };
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────

@@ -19,23 +19,26 @@ interface WeekRow {
 }
 
 interface TrendChartProps {
-  history52w: WeekRow[];
+  history: WeekRow[];
 }
 
-export default function TrendChart({ history52w }: TrendChartProps) {
-  const filtered = history52w.filter((r) => r.National != null);
+export default function TrendChart({ history }: TrendChartProps) {
+  const filtered = history.filter((r) => r.National != null);
 
-  const data = filtered.map((r) => {
-    const price = r.National as number;
-    const fsc = getFscRate(price);
-    const iml = getImlRate(price);
-    return {
-      date: r.date,
-      "Diesel $/gal": price,
-      "FSC $/mi": fsc.linehaulSurcharge,
-      "IML %": iml.imlPct,
-    };
-  });
+  const data = filtered
+    .map((r) => {
+      const price = r.National as number;
+      const fsc = getFscRate(price);
+      const iml = getImlRate(price);
+      if (!fsc || !iml) return null;
+      return {
+        date: r.date,
+        "Diesel $/gal": price,
+        "FSC $/mi": fsc.linehaulSurcharge,
+        "IML %": iml.imlPct,
+      };
+    })
+    .filter((d) => d !== null);
 
   // Label only the first week of each new month to avoid crowding
   const labelDates = new Set<string>();
@@ -73,13 +76,13 @@ export default function TrendChart({ history52w }: TrendChartProps) {
 
   return (
     <section className="max-w-5xl mx-auto px-4 py-12">
-      <h2 className="text-2xl font-bold text-slate-800 mb-1">Fuel Trend since Jan 2025</h2>
-      <p className="text-sm text-slate-500 mb-6">
-        National average diesel price with EIA linehaul (FSC) and intermodal (IML) surcharge history
+      <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Fuel Trend since Jan 2025</h2>
+      <p className="text-sm text-slate-700 mb-6">
+        EIA national diesel price, with estimated truckload (FSC) and intermodal (IML) surcharges from the carrier schedule
       </p>
 
       {/* Diesel price */}
-      <ChartCard title="Diesel Price ($/gal)">
+      <ChartCard title="Diesel price, US average ($/gal) — EIA">
         <ComposedChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis {...xAxisProps} />
@@ -91,7 +94,7 @@ export default function TrendChart({ history52w }: TrendChartProps) {
       </ChartCard>
 
       {/* FSC $/mi */}
-      <ChartCard title="EIA Linehaul Surcharge — FSC ($/mile)">
+      <ChartCard title="Estimated truckload surcharge — FSC ($/mile)">
         <ComposedChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis {...xAxisProps} />
@@ -103,7 +106,7 @@ export default function TrendChart({ history52w }: TrendChartProps) {
       </ChartCard>
 
       {/* IML % */}
-      <ChartCard title="Intermodal Surcharge — IML (%)">
+      <ChartCard title="Estimated intermodal surcharge — IML (% of linehaul)">
         <ComposedChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis {...xAxisProps} />
@@ -120,7 +123,7 @@ export default function TrendChart({ history52w }: TrendChartProps) {
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-3 sm:p-4 shadow-sm mb-4 sm:mb-6 last:mb-0">
-      <p className="text-sm font-semibold text-slate-600 mb-2 sm:mb-3">{title}</p>
+      <p className="text-sm font-semibold text-slate-800 mb-2 sm:mb-3">{title}</p>
       <ResponsiveContainer width="100%" height={180} className="sm:!h-[220px]">
         {children as React.ReactElement}
       </ResponsiveContainer>
