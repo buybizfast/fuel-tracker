@@ -5,24 +5,24 @@
     "series": "Weekly U.S. No 2 Diesel Retail Prices (Dollars per Gallon)",
     "source_url": "https://www.eia.gov/petroleum/gasdiesel/",
     "workbook_url": "https://www.eia.gov/petroleum/gasdiesel/xls/psw18vwall.xls",
-    "observation_date": "2026-10-19",
-    "release_date": "2026-10-20",
-    "next_release_date": "2026-10-27",
-    "refreshed_at": "2026-10-21T13:16:44Z"
+    "observation_date": "2026-10-26",
+    "release_date": "2026-10-27",
+    "next_release_date": "2026-11-03",
+    "refreshed_at": "2026-10-29T22:25:42Z"
   },
   "latest": {
-    "date": "2026-10-19",
-    "National": 6.276,
-    "East Coast": 5.984,
-    "New England": 6.47,
-    "Central Atlantic": 6.508,
-    "Lower Atlantic": 5.74,
-    "Midwest": 6.352,
-    "Gulf Coast": 5.903,
-    "Rocky Mountain": 6.422,
-    "West Coast": 7.394,
-    "California": 8.242,
-    "West Coast Ex-CA": 6.659
+    "date": "2026-10-26",
+    "National": 6.352,
+    "East Coast": 6.079,
+    "New England": 6.421,
+    "Central Atlantic": 6.496,
+    "Lower Atlantic": 5.89,
+    "Midwest": 6.48,
+    "Gulf Coast": 5.951,
+    "Rocky Mountain": 6.521,
+    "West Coast": 7.329,
+    "California": 8.155,
+    "West Coast Ex-CA": 6.614
   },
   "history": [
     {
@@ -1340,6 +1340,20 @@
       "West Coast": 7.394,
       "California": 8.242,
       "West Coast Ex-CA": 6.659
+    },
+    {
+      "date": "2026-10-26",
+      "National": 6.352,
+      "East Coast": 6.079,
+      "New England": 6.421,
+      "Central Atlantic": 6.496,
+      "Lower Atlantic": 5.89,
+      "Midwest": 6.48,
+      "Gulf Coast": 5.951,
+      "Rocky Mountain": 6.521,
+      "West Coast": 7.329,
+      "California": 8.155,
+      "West Coast Ex-CA": 6.614
     }
   ]
 }
