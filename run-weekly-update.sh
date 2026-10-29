@@ -19,7 +19,7 @@ if ! command -v npx >/dev/null 2>&1; then
   exit 1
 fi
 
-python3 update-data.py >> "$LOG" 2>&1
+python3 -u update-data.py >> "$LOG" 2>&1
 status=$?
 
 if [ $status -eq 0 ]; then

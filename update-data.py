@@ -14,7 +14,7 @@ Usage:
     python3 update-data.py
 """
 
-import urllib.request, xlrd, json, subprocess, sys, os, re, datetime
+import urllib.request, xlrd, json, subprocess, sys, os, re, datetime, time
 
 DIESEL_URL  = "https://www.eia.gov/petroleum/gasdiesel/xls/psw18vwall.xls"
 GAS_URL     = "https://www.eia.gov/petroleum/gasdiesel/xls/pswrgvwall.xls"
@@ -37,9 +37,46 @@ def excel_date(n):
     return xlrd.xldate_as_datetime(float(n), 0).strftime("%Y-%m-%d")
 
 
+DOWNLOAD_TIMEOUT = 60      # seconds per attempt; a stalled socket otherwise waits forever
+DOWNLOAD_ATTEMPTS = 3
+DEPLOY_ATTEMPTS = 3
+DEPLOY_TIMEOUT = 600       # seconds per Vercel attempt
+RETRY_PAUSE = 15           # seconds between attempts
+
+
 def download(url, dest):
-    print(f"  Downloading {url} ...")
-    urllib.request.urlretrieve(url, dest)
+    for attempt in range(1, DOWNLOAD_ATTEMPTS + 1):
+        print(f"  Downloading {url} (attempt {attempt}) ...", flush=True)
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=DOWNLOAD_TIMEOUT) as resp, open(dest, "wb") as f:
+                f.write(resp.read())
+            return
+        except Exception as e:
+            print(f"  ! download failed: {e}", flush=True)
+            if attempt == DOWNLOAD_ATTEMPTS:
+                raise
+            time.sleep(RETRY_PAUSE)
+
+
+def deploy():
+    """
+    Vercel's CLI session goes stale between weekly runs: the first call fails
+    with "Not authorized" and refreshes the session as a side effect, so the
+    next attempt succeeds. Retry rather than give up for the week.
+    """
+    for attempt in range(1, DEPLOY_ATTEMPTS + 1):
+        print(f"  Vercel deploy (attempt {attempt}) ...", flush=True)
+        try:
+            result = subprocess.run(["npx", "vercel", "--prod"], cwd=SCRIPT_DIR, timeout=DEPLOY_TIMEOUT)
+            if result.returncode == 0:
+                return True
+            print(f"  ! deploy exited {result.returncode}", flush=True)
+        except subprocess.TimeoutExpired:
+            print(f"  ! deploy timed out after {DEPLOY_TIMEOUT}s", flush=True)
+        if attempt < DEPLOY_ATTEMPTS:
+            time.sleep(RETRY_PAUSE)
+    return False
 
 
 def fetch_release_dates():
@@ -196,11 +233,10 @@ def main():
     }, "gasoline.json")
 
     print("\n5. Deploying to Vercel...")
-    result = subprocess.run(["npx", "vercel", "--prod"], cwd=SCRIPT_DIR, capture_output=False)
-    if result.returncode == 0:
+    if deploy():
         print(f"\nDone. Site updated at https://www.fsctracker.com")
     else:
-        print("\nDeploy failed - check Vercel output above.")
+        print(f"\nDeploy failed after {DEPLOY_ATTEMPTS} attempts - check Vercel output above.")
         sys.exit(1)
 
 
