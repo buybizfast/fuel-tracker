@@ -189,6 +189,14 @@ def main():
           f" | gasoline released: {releases.get('gasoline') or 'unknown'}"
           f" | next: {releases.get('next') or 'unknown'}")
 
+    if ONLY_IF_NEW:
+        current = None
+        try:
+            with open(os.path.join(DATA_DIR, "diesel.json")) as f:
+                current = json.load(f)["latest"]["date"]
+        except Exception:
+            pass  # no readable local data: treat EIA's data as new
+
     print("\n3. Parsing and validating...")
     diesel = parse_sheet(DIESEL_FILE, "Data 1", DIESEL_COLS, DIESEL_CHECK)
     gas    = parse_sheet(GAS_FILE, "Data 12", GAS_COLS, GAS_CHECK)
@@ -196,6 +204,10 @@ def main():
     validate(gas, "gasoline")
     print(f"  Diesel: {len(diesel)} weeks, latest {diesel[-1]['date']}, US=${diesel[-1]['National']}")
     print(f"  Gas:    {len(gas)} weeks, latest {gas[-1]['date']}, US=${gas[-1]['National']}")
+
+    if ONLY_IF_NEW and current is not None and diesel[-1]["date"] <= current:
+        print(f"\nNo new EIA data (site already has week of {current}). Nothing saved or deployed.")
+        return
 
     stamp = now.isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -238,6 +250,9 @@ def main():
     else:
         print(f"\nDeploy failed after {DEPLOY_ATTEMPTS} attempts - check Vercel output above.")
         sys.exit(1)
+
+
+ONLY_IF_NEW = "--only-if-new" in sys.argv
 
 
 if __name__ == "__main__":
