@@ -5,24 +5,24 @@
     "series": "Weekly U.S. No 2 Diesel Retail Prices (Dollars per Gallon)",
     "source_url": "https://www.eia.gov/petroleum/gasdiesel/",
     "workbook_url": "https://www.eia.gov/petroleum/gasdiesel/xls/psw18vwall.xls",
-    "observation_date": "2026-11-02",
-    "release_date": "2026-11-03",
-    "next_release_date": "2026-11-10",
-    "refreshed_at": "2026-11-03T15:04:08Z"
+    "observation_date": "2026-11-16",
+    "release_date": "2026-11-17",
+    "next_release_date": "2026-11-24",
+    "refreshed_at": "2026-11-18T00:30:40Z"
   },
   "latest": {
-    "date": "2026-11-02",
-    "National": 6.292,
-    "East Coast": 6.025,
-    "New England": 6.416,
-    "Central Atlantic": 6.486,
-    "Lower Atlantic": 5.814,
-    "Midwest": 6.402,
-    "Gulf Coast": 5.912,
-    "Rocky Mountain": 6.445,
-    "West Coast": 7.272,
-    "California": 8.076,
-    "West Coast Ex-CA": 6.575
+    "date": "2026-11-16",
+    "National": 5.937,
+    "East Coast": 5.782,
+    "New England": 6.225,
+    "Central Atlantic": 6.309,
+    "Lower Atlantic": 5.541,
+    "Midwest": 5.967,
+    "Gulf Coast": 5.547,
+    "Rocky Mountain": 6.011,
+    "West Coast": 6.948,
+    "California": 7.733,
+    "West Coast Ex-CA": 6.269
   },
   "history": [
     {
@@ -1368,6 +1368,34 @@
       "West Coast": 7.272,
       "California": 8.076,
       "West Coast Ex-CA": 6.575
+    },
+    {
+      "date": "2026-11-09",
+      "National": 6.127,
+      "East Coast": 5.92,
+      "New England": 6.349,
+      "Central Atlantic": 6.412,
+      "Lower Atlantic": 5.694,
+      "Midwest": 6.201,
+      "Gulf Coast": 5.741,
+      "Rocky Mountain": 6.206,
+      "West Coast": 7.11,
+      "California": 7.897,
+      "West Coast Ex-CA": 6.429
+    },
+    {
+      "date": "2026-11-16",
+      "National": 5.937,
+      "East Coast": 5.782,
+      "New England": 6.225,
+      "Central Atlantic": 6.309,
+      "Lower Atlantic": 5.541,
+      "Midwest": 5.967,
+      "Gulf Coast": 5.547,
+      "Rocky Mountain": 6.011,
+      "West Coast": 6.948,
+      "California": 7.733,
+      "West Coast Ex-CA": 6.269
     }
   ]
 }
